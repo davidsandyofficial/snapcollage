@@ -110,3 +110,4 @@ input[type=color]{width:44px;height:34px;border:0;background:none;padding:0}
   .actions{grid-template-columns:repeat(4,1fr)}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+#boothGo{width:220px;margin:0 auto;flex:none}
