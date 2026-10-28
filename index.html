@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob: data:; media-src 'self' blob: mediastream:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<title>SnapCollage – private photo collages</title>
+<meta name="description" content="Make beautiful photo collages on your phone. Your photos never leave your device.">
+<meta name="theme-color" content="#16121f">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SnapCollage">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<input type="file" id="pick" accept="image/*" multiple hidden>
+<input type="file" id="cam" accept="image/*" capture="environment" hidden>
+
+<!-- HOME -->
+<main id="home" class="view active">
+  <header class="hero">
+    <div class="logo"><span></span><span></span><span></span><span></span></div>
+    <h1>Snap<b>Collage</b></h1>
+    <p class="tag">Beautiful collages from your camera roll, made right on your phone.</p>
+    <div class="privacy"><span class="lock">🔒</span> <b>Your photos never leave your phone.</b> No uploads, no accounts, no tracking. It even works offline.</div>
+  </header>
+  <section class="actions">
+    <button class="big primary" id="btnPick"><span>🖼️</span>Pick photos</button>
+    <button class="big" id="btnCam"><span>📷</span>Take a photo</button>
+    <button class="big" id="btnBooth"><span>🎞️</span>Photo booth</button>
+    <button class="big" id="btnMem"><span>🗓️</span>Memories</button>
+  </section>
+  <section id="projectsWrap" class="card hidden">
+    <h2>Your saved collages</h2>
+    <div id="projects" class="projects"></div>
+  </section>
+  <section id="installTip" class="card hidden">
+    <h2>Install it like an app</h2>
+    <p id="installText"></p>
+    <button id="btnInstall" class="pill hidden">Install SnapCollage</button>
+  </section>
+  <section class="card follow" id="followCard">
+    <h2>I build free apps that respect your privacy.</h2>
+    <p>This one never uploads a single photo. Follow @DavidSandy on X to get my next free tools first, see behind-the-scenes builds, and vote on what I make next.</p>
+    <a class="pill x" href="https://x.com/DavidSandy" target="_blank" rel="noopener noreferrer">Follow @DavidSandy</a>
+  </section>
+  <footer class="foot">Made by David Sandy · <a href="https://x.com/DavidSandy" target="_blank" rel="noopener noreferrer">follow @DavidSandy on X</a> · free &amp; non-commercial</footer>
+</main>
+
+<!-- MEMORIES -->
+<main id="memories" class="view">
+  <div class="topbar"><button class="icon" data-back>←</button><h2>Memories</h2><span></span></div>
+  <p class="muted pad">Pick a bunch of photos and I'll group them by the month they were taken (read from the photo's own data, on your phone).</p>
+  <div class="pad"><button class="pill" id="memPick">Choose photos to sort</button></div>
+  <div id="memList" class="memlist"></div>
+</main>
+
+<!-- BOOTH -->
+<main id="booth" class="view">
+  <div class="topbar"><button class="icon" data-back>←</button><h2>Photo booth</h2><button class="icon" id="boothFlip" title="Switch camera">🔄</button></div>
+  <div class="boothStage"><video id="boothVideo" playsinline muted autoplay></video><div id="boothCount" class="count"></div><div id="boothFlash" class="flash"></div></div>
+  <div id="boothThumbs" class="boothThumbs"></div>
+  <div class="pad center"><button class="big primary" id="boothGo"><span>⏱️</span>Take 4 shots</button></div>
+  <p class="muted pad center" id="boothMsg">Camera video stays on this device.</p>
+</main>
+
+<!-- EDITOR -->
+<main id="editor" class="view">
+  <div class="topbar">
+    <button class="icon" id="edBack" aria-label="Back">←</button>
+    <div class="tb-mid"><button class="pill sm" id="btnAuto">✨ Auto</button><button class="icon" id="btnUndo" aria-label="Undo">↶</button></div>
+    <button class="pill sm primary" id="btnExport">Save</button>
+  </div>
+  <div class="stage" id="stage"><canvas id="cv"></canvas><div id="hint" class="hint">Drag to move · pinch to zoom · hold &amp; drag to swap</div></div>
+  <div id="ctxbar" class="ctxbar hidden"></div>
+  <nav class="tabs" id="tabs">
+    <button data-tab="layout" class="on">▦<small>Layout</small></button>
+    <button data-tab="size">⬚<small>Size</small></button>
+    <button data-tab="style">◐<small>Style</small></button>
+    <button data-tab="filter">✦<small>Filters</small></button>
+    <button data-tab="add">Aa<small>Text</small></button>
+    <button data-tab="photos">＋<small>Photos</small></button>
+  </nav>
+  <section class="panel" id="panel"></section>
+</main>
+
+<!-- EXPORT SHEET -->
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet">
+  <div class="grab"></div>
+  <h2>Save your collage</h2>
+  <img id="exPreview" alt="Collage preview">
+  <div class="row"><label>Format</label><div class="seg" id="exFmt"><button data-v="png" class="on">PNG</button><button data-v="jpeg">JPG</button></div></div>
+  <div class="row"><label>Quality</label><div class="seg" id="exRes"><button data-v="1">Standard</button><button data-v="2" class="on">High</button><button data-v="3">Max</button></div></div>
+  <div class="btnrow">
+    <button class="big primary" id="exShare"><span>📤</span>Share / Save</button>
+    <button class="big" id="exDown"><span>⬇️</span>Download</button>
+  </div>
+  <div class="btnrow">
+    <button class="big" id="exVideo"><span>🎬</span>Slideshow video</button>
+    <button class="big" id="exProject"><span>💾</span>Keep editing later</button>
+  </div>
+  <p class="muted small" id="exMsg"></p>
+  <div class="mini-follow hidden" id="miniFollow">Made something cool? <a href="https://x.com/DavidSandy" target="_blank" rel="noopener noreferrer">Follow @DavidSandy</a> for the next free app first.</div>
+</div>
+<div id="toast" class="toast"></div>
+<div id="busy" class="busy hidden"><div class="spin"></div><p id="busyText">Working…</p></div>
+<script src="exif.js"></script>
+<script src="layouts.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
